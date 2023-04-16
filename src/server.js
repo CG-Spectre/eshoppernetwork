@@ -1,30 +1,4 @@
-/*const amazon = require("./stores/amazon");
-const amazonInst = new amazon.amazon();
-const papi = require("amazon-product-api");
-var client = papi.createClient({
-    awsId:"3582-0430-2859",
-    awsSecret:"l+s5BQpIWDDsBgc/HVmpznyIuul4xkXVF6L5ahrQ",
-    awsTag:"AKIAVGZVD4YFWUUCXILF"
-});
-setTimeout(()=>{
-    client.itemSearch({
-        director: 'Quentin Tarantino',
-        actor: 'Samuel L. Jackson',
-        searchIndex: 'DVD',
-        audienceRating: 'R',
-        responseGroup: 'ItemAttributes,Offers,Images'
-      }).then(function(results){
-        console.log(results);
-      }).catch(function(err){
-        console.log(err);
-      });
-}, 2000);
-async function start(){
-    let amznRes = await amazonInst.query("nike shoes");
-    console.log(amznRes);
-}
-//start();
-//console.log(require("cheerio").load("<div><p id='hi'>asdd</p><p>asd</p></div>")("div").children()[0].attributes);*/
+
 
 const amazon = require("./stores/amazon");
 const amazonInst = new amazon.amazon();
@@ -37,6 +11,24 @@ const bestbuyInst = new bestbuy.bestbuy();
 
 const ebay = require("./stores/ebay");
 const ebayInst = new ebay.ebay();
+
+const express = require("express");
+const app = express();
+const port = 80;
+
+app.get("/", (req, res)=>{
+  res.sendFile(__dirname+"/views/home.html")
+});
+
+app.get("/query", (req, res)=>{
+  query(req.query.kq, (e)=>{
+    res.send(e);
+  });
+});
+
+app.listen(port, ()=>{
+  console.log("Started on port "+port);
+})
 
 function start(){
   query("iphone", (res)=>{
@@ -78,12 +70,9 @@ function query(query, callback){
   });
   function isDone(){
     if(done >= toDo){
-      console.log(currentList.length + " results.");
       return currentList;
     }else{
       return false;
     }
   }
 }
-
-start();
