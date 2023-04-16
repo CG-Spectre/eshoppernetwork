@@ -26,47 +26,64 @@ async function start(){
 //start();
 //console.log(require("cheerio").load("<div><p id='hi'>asdd</p><p>asd</p></div>")("div").children()[0].attributes);*/
 
-const puppeteer = require('puppeteer');
+const amazon = require("./stores/amazon");
+const amazonInst = new amazon.amazon();
 
-async function searchAmazon(searchTerm) {
-  // Launch a new headless browser instance
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
+const newegg = require("./stores/newegg");
+const neweggInst = new newegg.newegg();
 
-  // Navigate to Amazon.com
-  await page.goto('https://www.amazon.com/');
+const bestbuy = require("./stores/bestbuy");
+const bestbuyInst = new bestbuy.bestbuy();
 
-  // Wait for the search box to be fully loaded
-  await page.waitForSelector('#twotabsearchtextbox');
+const ebay = require("./stores/ebay");
+const ebayInst = new ebay.ebay();
 
-  // Enter the search term in the search box and submit the search form
-  await page.type('#twotabsearchtextbox', searchTerm);
-  await page.click('input[type="submit"]');
-
-  // Wait for the search results page to load
-  await page.waitForSelector('.s-result-list');
-
-  // Wait a little longer for the page to fully load
-  await page.waitForTimeout(1000);
-
-  // Extract a list of product names and prices from the search results
-  const products = await page.evaluate(() => {
-    const results = [];
-    const items = document.querySelectorAll('.s-result-item');
-    items.forEach((item) => {
-      const name = item.querySelector('h2 a').innerText;
-      const price = item.querySelector('.a-price .a-offscreen').innerText;
-      results.push({ name, price });
-    });
-    return results;
+function start(){
+  query("iphone", (res)=>{
+    console.log(res);
   });
-
-  // Log the list of products to the console
-  console.log(products);
-
-  // Close the browser instance
-  await browser.close();
 }
 
-// Usage: Call the searchAmazon() function with a search term
-searchAmazon('iphone');
+function query(query, callback){
+  let toDo = 4;
+  let done = 0;
+  let currentList = [];
+  amazonInst.query(query).then(res=>{
+    currentList = [...currentList, ...res];
+    done++;
+    if(isDone()){
+      callback(isDone());
+    }
+  });
+  bestbuyInst.query(query).then(res=>{
+    currentList = [...currentList, ...res];
+    done++;
+    if(isDone()){
+      callback(isDone());
+    }
+  });
+  neweggInst.query(query).then(res=>{
+    currentList = [...currentList, ...res];
+    done++;
+    if(isDone()){
+      callback(isDone());
+    }
+  });
+  ebayInst.query(query).then(res=>{
+    currentList = [...currentList, ...res];
+    done++;
+    if(isDone()){
+      callback(isDone());
+    }
+  });
+  function isDone(){
+    if(done >= toDo){
+      console.log(currentList.length + " results.");
+      return currentList;
+    }else{
+      return false;
+    }
+  }
+}
+
+start();
