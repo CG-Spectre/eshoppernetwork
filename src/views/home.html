@@ -28,30 +28,7 @@
         </ul>
     </div>
     <div class="results-container">
-        <div class="result-card">
-
-        </div>
-        <div class="result-card">
-
-        </div>
-        <div class="result-card">
-
-        </div>
-        <div class="result-card">
-
-        </div>
-        <div class="result-card">
-
-        </div>
-        <div class="result-card">
-
-        </div>
-        <div class="result-card">
-
-        </div>
-        <div class="result-card">
-
-        </div>
+        
     </div>
 </body>
 <style id="jsStyle">
@@ -59,7 +36,50 @@
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
 <style>
-    
+    #infoContainer{
+        display: flex;
+        justify-content: space-evenly !important;
+    }
+    #infoContainer i{
+        color:rgb(255, 166, 0);
+    }
+    #infoContainer p{
+        margin: 0;
+    }
+    #contentContainer div{
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+    h2{
+        margin-top: 10px;
+         text-align: center;
+         width: 100%;
+         white-space: nowrap;
+         text-overflow: ellipsis;
+         overflow: hidden;
+         margin-left: 5px;
+         margin-right: 5px;
+    }
+    #contentContainer{
+        height: 30%;
+        display: flex;
+        justify-content: center;
+        align-items:center;
+        flex-direction: column;
+    }
+    #imgContainer{
+        width: 100%;
+        height: 70%;
+        display: flex;
+        justify-content: center;
+    }
+    #imgContainer img{
+        width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        filter:brightness(0.85);
+    }
     * {
         max-width: 100%;
     }
@@ -74,6 +94,8 @@
         height: 400px;
         background-color: rgb(214, 214, 214);
         margin: 10px;
+        text-decoration: none;
+        color:black;
     }
     .results-container{
         width: 100vw;
@@ -215,6 +237,138 @@
     }
 </style>
 <script>
+    function addCard(link, imgsrc, rating, name, source, price){
+        
+        const node = document.createElement("a");
+        node.href = link;
+        const imgCont = document.createElement("div");
+        imgCont.id = "imgContainer";
+        const img = document.createElement("img");
+        img.src = imgsrc;
+        const contentContainer = document.createElement("div");
+        contentContainer.id = "contentContainer";
+        const nameCont = document.createElement("div");
+        const nameh2 = document.createElement("h2");
+        nameh2.innerHTML = name;
+        const infoContainer = document.createElement("div");
+        infoContainer.id = "infoContainer";
+        const se = document.createElement("p");
+        se.innerHTML = source;
+        const rating5 = rating*5;
+        const ratingCont = document.createElement("p");
+        const star1 = document.createElement("i");
+        const star2 = document.createElement("i");
+        const star3 = document.createElement("i");
+        const star4 = document.createElement("i");
+        const star5 = document.createElement("i");
+        function addNoStar(star){
+            star.classList.add("ph-star");
+            star.classList.add("ph");
+        }
+        function addHalfStar(star){
+            star.classList.add("ph-star-half");
+            star.classList.add("ph-fill");
+        }
+        function addFullStar(star){
+            star.classList.add("ph-star");
+            star.classList.add("ph-fill");
+        }
+        if(rating5 < 0.5){
+            addNoStar(star1);
+            addNoStar(star2);
+            addNoStar(star3);
+            addNoStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 1){
+            addHalfStar(star1);
+            addNoStar(star2);
+            addNoStar(star3);
+            addNoStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 1.5){
+            addFullStar(star1);
+            addNoStar(star2);
+            addNoStar(star3);
+            addNoStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 2){
+            addFullStar(star1);
+            addHalfStar(star2);
+            addNoStar(star3);
+            addNoStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 2.5){
+            addFullStar(star1);
+            addFullStar(star2);
+            addNoStar(star3);
+            addNoStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 3){
+            addFullStar(star1);
+            addFullStar(star2);
+            addHalfStar(star3);
+            addNoStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 3.5){
+            addFullStar(star1);
+            addFullStar(star2);
+            addFullStar(star3);
+            addNoStar(star4);
+            addNoStar(star5);
+        }
+        else if(rating5 < 4){
+            addFullStar(star1);
+            addFullStar(star2);
+            addFullStar(star3);
+            addHalfStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 4.5){
+            addFullStar(star1);
+            addFullStar(star2);
+            addFullStar(star3);
+            addFullStar(star4);
+            addNoStar(star5);
+        }else if(rating5 < 4.9){
+            addFullStar(star1);
+            addFullStar(star2);
+            addFullStar(star3);
+            addFullStar(star4);
+            addHalfStar(star5);
+        }else{
+            addFullStar(star1);
+            addFullStar(star2);
+            addFullStar(star3);
+            addFullStar(star4);
+            addFullStar(star5);
+        }
+        const pricen = document.createElement("p");
+        pricen.innerHTML = price;
+        imgCont.appendChild(img);
+        node.appendChild(imgCont);
+        contentContainer.appendChild(nameCont);
+        nameCont.appendChild(nameh2);
+        node.appendChild(contentContainer);
+        contentContainer.appendChild(infoContainer);
+        infoContainer.appendChild(se);
+        infoContainer.appendChild(ratingCont);
+        ratingCont.appendChild(star1);
+        ratingCont.appendChild(star2);
+        ratingCont.appendChild(star3);
+        ratingCont.appendChild(star4);
+        ratingCont.appendChild(star5);
+        infoContainer.appendChild(pricen);
+        node.classList.add("result-card");
+        document.querySelector(".results-container").appendChild(node);
+        /*<a class="result-card">
+            <div id="imgContainer">
+                <img src="https://m.media-amazon.com/images/I/81Ae0egC9zL._AC_UY545_FMwebp_QL65_.jpg" alt="">
+            </div>
+            <div id="contentContainer">
+                <div><h2>iPhone 13 Pro (Renewed) asda asd</h2></div>
+                <div id="infoContainer"><p>eBay</p><p><i class="ph-star ph-fill"></i><i class="ph-star ph-fill"></i><i class="ph-star ph-fill"></i><i class="ph-star-half ph-fill"></i><i class="ph-star ph"></i></p><p>999.99$</p></div>
+            </div>
+        </a>*/
+    }
     addEventListener("load", ()=>{
         const minWidth = 320;
         const windowWidth = document.querySelector('html').clientWidth;
@@ -249,6 +403,16 @@
                     //document.querySelector("form").style.display = "initial";
                     document.querySelector("form").classList.remove("fading");
                     listReceived();
+                    for(let i = 0; i < currentList.length; i++){
+                        let item = currentList[i];
+                        addCard(item.link, item.img, item.rating, item.name, item.src, item.price);
+                    }
+                    const minWidth = 320;
+                    const windowWidth = document.querySelector('html').clientWidth;
+                    const toFit = Math.floor(windowWidth / minWidth);
+                    const leftOverPixels = windowWidth % minWidth;
+                    const toAdd = leftOverPixels/toFit;
+                    document.getElementById("jsStyle").innerHTML = `.result-card{width:${300+toAdd}px !important; height:${((300+toAdd)/300)*400}px !important;}`;
                 },
                 error:function(err){
                     console.log(err);
@@ -256,6 +420,7 @@
             });
             document.querySelector("#header img").classList.add("infinite");
             //document.querySelector("form").style.display = "none";
+            document.querySelector(".results-container").innerHTML = "";
             document.querySelector("form").classList.add("fading");
         }
         if(e){
