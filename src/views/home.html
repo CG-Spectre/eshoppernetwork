@@ -5,12 +5,373 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>eShopperNetwork</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Lexend+Deca:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 <body>
-    
+    <div id="header">
+        <p><nobr class="t1">eSh</nobr><img src="./img/logo.svg" alt="" class=""><nobr class="t2">pperNet</nobr></p>
+        <div id="swrapper"><form><input type="text" placeholder="Search..."><i id="submit" class="ph-bold ph-magnifying-glass"></i></form></div>
+    </div>
+    <div id="header2">
+        <ul>
+            <li><a>Newegg</a></li>
+            <li><a>Amazon</a></li>
+            <li><a>Best Buy</a></li>
+            <li><a>eBay</a></li>
+            <li><a>Walmart</a></li>
+            <li><a>Costco</a></li>
+            <li><a>Target</a></li>
+            <li><a>Microcenter</a></li>
+        </ul>
+    </div>
+    <div class="results-container">
+        <div class="result-card">
+
+        </div>
+        <div class="result-card">
+
+        </div>
+        <div class="result-card">
+
+        </div>
+        <div class="result-card">
+
+        </div>
+        <div class="result-card">
+
+        </div>
+        <div class="result-card">
+
+        </div>
+        <div class="result-card">
+
+        </div>
+        <div class="result-card">
+
+        </div>
+    </div>
 </body>
+<style id="jsStyle">
+    
+</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
+<style>
+    
+    * {
+        max-width: 100%;
+    }
+    body{
+        overflow-x:clip;
+    }
+    :root {
+        --window-width: 100vw - 16px;
+    }
+    .result-card{
+        width: 300px;
+        height: 400px;
+        background-color: rgb(214, 214, 214);
+        margin: 10px;
+    }
+    .results-container{
+        width: 100vw;
+        top: 107px;
+        left: 0;
+        position: absolute;
+        display: flex;
+        align-items:center;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    *{
+        font-family: 'Josefin Sans', sans-serif;
+        font-family: 'Lexend Deca', sans-serif;
+    }
+    @keyframes search {
+        from{
+            transform: translateY(-70px);
+        }
+        to{
+            transform: translateY(0);
+        }
+    }
+    #swrapper{
+        width: calc(100vw - 225px);
+        display: flex;
+        justify-content: center;
+    }
+    #header2 ul{
+        display: flex;
+        width: 100vw;
+        list-style-type: none;
+        justify-content: space-evenly;
+    }
+    #header input[type=text]{
+        width: calc(100vw - 250px);
+        height: 30px;
+        font-size: 25px;
+        outline: none;
+        border: 2px orange solid;
+        border-radius: 5px;
+        
+    }
+    form{
+        position: relative;
+        display: flex;
+        align-items:center;
+        animation: search 1s;
+    }
+    form.fading{
+        animation: fade 0.5s;
+        opacity: 0;
+    }
+    #submit{
+        position: absolute;
+        right:0;
+        top: 3px;
+        font-size: 30px;
+        color: #3f3f52;
+        cursor: pointer;
+    }
+    #header2 li{
+        color: rgb(226, 226, 226);
+    }
+    .t1{
+        transform: translateX(5px);
+    }
+    .t2{
+        transform: translateX(-5px);
+    }
+    #header{
+        width: 100vw;
+        left: 0;
+        top: 0;
+        position: absolute;
+        height: 67px;
+        background-color:#1e1e27;
+        display: flex;
+        align-items:center;
+    }
+    #header2{
+        font-family: 'Josefin Sans', sans-serif;
+        font-family: 'Lexend Deca', sans-serif;
+        width: 100vw;
+        left: 0;
+        top: 67px;
+        position: absolute;
+        height: 40px;
+        background-color:#3f3f52;
+        display: flex;
+        align-items:center;
+    }
+    @keyframes cart {
+        from{
+            transform: translate(-100px, 13px);
+        }
+        to{
+            transform: translate(0, 13px);
+        }
+    }
+    @keyframes cartinf {
+        from{
+            transform: translate(-100px, 13px);
+        }
+        to{
+            transform: translate(calc(100vw - 50px), 13px);
+        }
+    }
+    @keyframes fade {
+        from{
+            opacity: 1;
+        }
+        to{
+            opacity: 0;
+        }
+    }
+    #header img{
+        height: 50px;
+        transform: translateY(13px);
+        animation-name:cart;
+        animation-duration:1s;
+    }
+    #header img.infinite{
+        height: 50px;
+        transform: translateY(-100px, 13px);
+        animation: cartinf 5s infinite;
+    }
+    #header p{
+        font-family: 'Josefin Sans', sans-serif;
+        font-family: 'Lexend Deca', sans-serif;
+        color:white;
+        font-size: 30px;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    body{
+        background-color: rgb(226, 226, 226);
+    }
+</style>
 <script>
+    addEventListener("load", ()=>{
+        const minWidth = 320;
+        const windowWidth = document.querySelector('html').clientWidth;
+        const toFit = Math.floor(windowWidth / minWidth);
+        const leftOverPixels = windowWidth % minWidth;
+        const toAdd = leftOverPixels/toFit;
+        document.getElementById("jsStyle").innerHTML = `.result-card{width:${300+toAdd}px !important; height:${((300+toAdd)/300)*400}px !important;}`;
+    })
+    addEventListener("resize", (e)=>{
+        const minWidth = 320;
+        const windowWidth = document.querySelector('html').clientWidth;
+        const toFit = Math.floor(windowWidth / minWidth);
+        const leftOverPixels = windowWidth % minWidth;
+        const toAdd = leftOverPixels/toFit;
+        document.getElementById("jsStyle").innerHTML = `.result-card{width:${300+toAdd}px !important; height:${((300+toAdd)/300)*400}px !important;}`;
+    });
+    document.getElementById("submit").addEventListener("click", ()=>{
+        submit(false);
+    })
+    document.querySelector("form").addEventListener("submit", submit);
+    function submit(e){
+        let inp = document.querySelector("#header input").value;
+        document.querySelector("#header input").value = "";
+        if(inp){
+            $.ajax({
+                url:"/query",
+                data:{kq:inp},
+                type:'GET',
+                success:function(data){
+                    currentList = data;
+                    document.querySelector("#header img").classList.remove("infinite");
+                    //document.querySelector("form").style.display = "initial";
+                    document.querySelector("form").classList.remove("fading");
+                    listReceived();
+                },
+                error:function(err){
+                    console.log(err);
+                }
+            });
+            document.querySelector("#header img").classList.add("infinite");
+            //document.querySelector("form").style.display = "none";
+            document.querySelector("form").classList.add("fading");
+        }
+        if(e){
+            e.preventDefault();
+        }
+        
+    }
+    let currentList = false;
+    let filterOptions = false;
+    /*$.ajax({
+        url:"/query",
+        data:{kq:"amazon echo"},
+        type:'GET',
+        success:function(data){
+            currentList = data;
+            listReceived();
+        },
+        error:function(err){
+            console.log(err);
+        }
+    });*/
+    function listReceived(){
+        setFilterOptions();
+    }
+    function setFilterOptions(){
+        let options = {};
+        let prevListItem = false;
+        let occurences = {};
+        let alreadyProcessedNames = [];
+        for(let i = 0; i < currentList.length; i++){
+            let listItem = currentList[i];
+            if(prevListItem){
+                for(let t = 0; t < prevListItem.name.split(" ").length; t++){
+                    let word = prevListItem.name.split(" ")[t];
+                    if(word.length > 3 && listItem.name.split(" ").includes(word) && !(word in occurences)){
+                        occurences[word] = 1;
+                        for(let i = 0; i < alreadyProcessedNames.length; i++){
+                            if(alreadyProcessedNames[i].includes(word)){
+                                occurences[word]++;
+                            }
+                        }
+                    }else if(word in occurences){
+                        occurences[word]++;
+                    }
+                }
+            }
+            alreadyProcessedNames.push(listItem.name);
+            prevListItem = listItem;
+        }
+        
+        let currentMax = 0;
+        for(i in occurences){
+            if(occurences[i] > currentMax){
+                currentMax = occurences[i];
+                
+            }
+        }
+        let limit = currentMax*0.15;
+
+        for(i in occurences){
+            if(occurences[i] < limit){
+                delete occurences[i];
+            }
+        }
+        // look for number after
+        let toMerge = {};
+        for(let i = 0; i < currentList.length; i++){
+            
+            let name = currentList[i].name.toLowerCase();
+            for(t in occurences){
+                let word = t.toLowerCase();
+                if(name.includes(word)){
+                    let intFollowing;
+                    try{
+                        intFollowing = name.split(word)[1];
+                        if(!intFollowing.startsWith(" ")){
+                            intFollowing = " " + intFollowing;
+                        }
+                        intFollowing = parseInt(intFollowing.split(" ")[1]);
+                    }catch(e){
+                        let intFollowing = NaN;
+                    }
+                    if(intFollowing){
+                        if((word + " " + intFollowing) in toMerge){
+                            toMerge[word + " " + intFollowing]++;
+                        }else{
+                            toMerge[word + " " + intFollowing] = 1;
+                        }
+                    }
+                }
+            }
+        }
+        occurences = Object.assign({}, occurences, toMerge);
+        
+        for(i in occurences){
+            if(occurences[i] < 5){
+                delete occurences[i];
+            }else{
+                ri = removePunct(i);
+                occurences[ri] = occurences[i];
+                if(ri != i){
+                    delete occurences[i];
+                }
+            }
+        }
+        options.kwsearch = Object.keys(occurences);
+        filterOptions = options;
+    }
+    let punct = [".", ",", ":", "(", ")", "'", "!", "?"];
+    function removePunct(string){
+        for(let i = 0; i < punct.length; i++){
+            string = string.replaceAll(punct[i], "").toLowerCase();
+        }
+        return string;
+    }
+    
     
 </script>
 </html>

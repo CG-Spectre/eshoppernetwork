@@ -26,6 +26,10 @@ app.get("/query", (req, res)=>{
   });
 });
 
+app.get("/img/logo.svg", (req, res)=>{
+  res.sendFile(__dirname + "/img/eShopperNet.svg");
+});
+
 app.listen(port, ()=>{
   console.log("Started on port "+port);
 })
