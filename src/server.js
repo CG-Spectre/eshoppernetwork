@@ -11,11 +11,22 @@ const bestbuyInst = new bestbuy.bestbuy();
 
 const ebay = require("./stores/ebay");
 const ebayInst = new ebay.ebay();
-
+const fs = require("fs");
+const WebSocket = require("ws"); 
+const https = require("https");
+const WebSocketServer = WebSocket.WebSocketServer;
 const express = require("express");
 const app = express();
-const port = 80;
-
+const port = 25580;
+const key = fs.readFileSync("certs/privkey.pem");
+const cert = fs.readFileSync("certs/cert.pem");
+const server = https.createServer({key, cert}, app);
+const wss = new WebSocketServer({
+  //port:25581,
+  server
+});
+server.listen(25581);
+wss.on("listening", ()=>{console.log("Websocket listening on port 25581")});
 app.get("/", (req, res)=>{
   res.sendFile(__dirname+"/views/home.html")
 });
@@ -44,34 +55,46 @@ function query(query, callback){
   let toDo = 4;
   let done = 0;
   let currentList = [];
-  amazonInst.query(query).then(res=>{
-    currentList = [...currentList, ...res];
-    done++;
-    if(isDone()){
-      callback(isDone());
-    }
-  });
-  bestbuyInst.query(query).then(res=>{
-    currentList = [...currentList, ...res];
-    done++;
-    if(isDone()){
-      callback(isDone());
-    }
-  });
-  neweggInst.query(query).then(res=>{
-    currentList = [...currentList, ...res];
-    done++;
-    if(isDone()){
-      callback(isDone());
-    }
-  });
-  ebayInst.query(query).then(res=>{
-    currentList = [...currentList, ...res];
-    done++;
-    if(isDone()){
-      callback(isDone());
-    }
-  });
+  try{
+    amazonInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      if(isDone()){
+        callback(isDone());
+      }
+    });
+  }catch(e){}
+
+  try{
+    bestbuyInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      if(isDone()){
+        callback(isDone());
+      }
+    });
+  }catch(e){}
+
+  try{
+    neweggInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      if(isDone()){
+        callback(isDone());
+      }
+    });
+  }catch(e){}
+  
+  try{
+    ebayInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      if(isDone()){
+        callback(isDone());
+      }
+    });
+  }catch(e){}
+  
   function isDone(){
     if(done >= toDo){
       return currentList;
