@@ -14,7 +14,7 @@
 </head>
 <body>
     <div id="header">
-        <p><nobr class="t1">eSh</nobr><img src="./img/logo.svg" alt="" class=""><nobr class="t2">pperNet</nobr></p>
+        <p><nobr class="t1">eSh</nobr><div id="imgplaceholder"></div><img src="./img/logo.svg" alt="" class=""><nobr class="t2">pperNet</nobr></p>
         <div id="swrapper"><form><input type="text" placeholder="Search..."><i id="submit" class="ph-bold ph-magnifying-glass"></i></form></div>
     </div>
     <div id="header2">
@@ -211,6 +211,9 @@
         display: flex;
         align-items:center;
     }
+    div.infinite{
+        width: 50px;
+    }
     @keyframes cart {
         from{
             transform: translate(-100px, 13px);
@@ -221,10 +224,10 @@
     }
     @keyframes cartinf {
         from{
-            transform: translate(-100px, 13px);
+            left:-50px;
         }
         to{
-            transform: translate(calc(100vw - 50px), 13px);
+            left:100vw;
         }
     }
     @keyframes fade {
@@ -243,10 +246,22 @@
     }
     #header img.infinite{
         height: 50px;
-        transform: translateY(-100px, 13px);
+        transform: translateY(13px);
+        left:-50px;
         animation: cartinf 5s infinite;
+        position: absolute;
     }
+
     #header p{
+        font-family: 'Josefin Sans', sans-serif;
+        font-family: 'Lexend Deca', sans-serif;
+        color:white;
+        font-size: 30px;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+    #header .t2{
         font-family: 'Josefin Sans', sans-serif;
         font-family: 'Lexend Deca', sans-serif;
         color:white;
@@ -279,26 +294,58 @@
             justify-content: center;
             align-items:center;
         }
-        #header img{
-            animation-duration:2s;
-        }
-        @keyframes cart {
+       
+        /*@keyframes cart {
             from{
-                transform: translate(calc(-50vw), 13px);
+                transform: translate(calc(-50vw), 13px) !important;
             }
             to{
                 transform: translate(0, 13px);
             }
-        }
+        }*/
         #placeholderContent{
             top: 65px;
             
         }
+        
       }
 
     
 </style>
 <script>
+    const observer = new MutationObserver((mutations)=>{
+        mutations.forEach((mut)=>{
+            if(mut.target.classList.contains("infinite")){
+                document.getElementById("imgplaceholder").classList.add("infinite");
+            }else{
+                document.getElementById("imgplaceholder").classList.remove("infinite");
+            }
+        })
+    });
+    observer.observe(document.querySelector("#header img"), {attributeFilter:["class"], attributes:true});
+    const socket = new WebSocket("wss://wss.eshpr.net:25581");
+    socket.onmessage = (data)=>{
+        
+        data = JSON.parse(data.data);
+        currentList = data.data;
+        document.querySelector("#header img").classList.remove("infinite");
+        //document.querySelector("form").style.display = "initial";
+        document.querySelector("form").classList.remove("fading");
+        listReceived();
+        document.querySelector(".results-container").innerHTML = "";
+        for(let i = 0; i < currentList.length; i++){
+            let item = currentList[i];
+            addCard(item.link, item.img, item.rating, item.name, item.src, item.price);
+        }
+        const minWidth = 320;
+        const windowWidth = document.querySelector('html').clientWidth;
+        const toFit = Math.floor(windowWidth / minWidth);
+        const leftOverPixels = windowWidth % minWidth;
+        const toAdd = leftOverPixels/toFit;
+        document.getElementById("jsStyle").innerHTML = `.result-card{width:${300+toAdd}px !important; height:${((300+toAdd)/300)*400}px !important;}`;
+        //document.getElementById("placeholderContent").innerHTML = "";
+        console.log(data);
+    }
     function addCard(link, imgsrc, rating, name, source, price){
         
         const node = document.createElement("a");
@@ -339,7 +386,7 @@
         }
         if(rating5){
 
-            console.log(rating5);
+            //console.log(rating5);
         if(rating5 < 0.5){
             addNoStar(star1);
             addNoStar(star2);
@@ -467,7 +514,7 @@
         let inp = document.querySelector("#header input").value;
         document.querySelector("#header input").value = "";
         if(inp){
-            $.ajax({
+            /*$.ajax({
                 url:"/query",
                 data:{kq:inp},
                 type:'GET',
@@ -492,7 +539,8 @@
                 error:function(err){
                     console.log(err);
                 }
-            });
+            });*/
+            socket.send(JSON.stringify({request:"query", data:{query:inp}}));
             document.querySelector("#header img").classList.add("infinite");
             //document.querySelector("form").style.display = "none";
             document.querySelector(".results-container").innerHTML = "";
@@ -569,16 +617,18 @@
                 let word = t.toLowerCase();
                 if(name.includes(word)){
                     let intFollowing;
+                    let intFollowingT;
                     try{
-                        intFollowing = name.split(word)[1];
-                        if(!intFollowing.startsWith(" ")){
-                            intFollowing = " " + intFollowing;
+                        intFollowingT = name.split(word)[1];
+                        if(!intFollowingT.startsWith(" ")){
+                            intFollowingT = " " + intFollowingT;
                         }
-                        intFollowing = parseInt(intFollowing.split(" ")[1]);
+                        intFollowing = parseInt(intFollowingT.split(" ")[1]);
                     }catch(e){
                         let intFollowing = NaN;
                     }
                     if(intFollowing){
+                        intFollowing = (intFollowingT.split(" ")[1]);
                         if((word + " " + intFollowing) in toMerge){
                             toMerge[word + " " + intFollowing]++;
                         }else{
@@ -591,6 +641,7 @@
         occurences = Object.assign({}, occurences, toMerge);
         
         for(i in occurences){
+            
             if(occurences[i] < 5){
                 delete occurences[i];
             }else{
@@ -599,9 +650,21 @@
                 if(ri != i){
                     delete occurences[i];
                 }
+                
+            }
+            
+        }
+        occurences = Object.keys(occurences);
+        for(let t = 0; t < occurences.length; t++){
+            for(let i = 0; i < occurences.length; i++){
+                if(occurences[i] && occurences[t]){
+                    if(occurences[t].includes(occurences[i]) && t != i && !(occurences[t].includes(" "))){
+                        delete occurences[i];
+                    }
+                }
             }
         }
-        options.kwsearch = Object.keys(occurences);
+        options.kwsearch = occurences;
         filterOptions = options;
     }
     let punct = [".", ",", ":", "(", ")", "'", "!", "?"];

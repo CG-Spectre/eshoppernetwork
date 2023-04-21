@@ -21,12 +21,27 @@ const port = 25580;
 const key = fs.readFileSync("certs/privkey.pem");
 const cert = fs.readFileSync("certs/cert.pem");
 const server = https.createServer({key, cert}, app);
+const requests = [];
 const wss = new WebSocketServer({
   //port:25581,
   server
 });
 server.listen(25581);
 wss.on("listening", ()=>{console.log("Websocket listening on port 25581")});
+wss.on("connection", (ws)=>{
+  ws.on("message", (data)=>{
+    const req = JSON.parse(data.toString());
+    reqDict[req.request](req.data,ws);
+  })
+});
+const reqDict = {
+  query: function(data, socket){
+    const query = data.query;
+    queryIncrem(query, (res, toDo, done)=>{
+      socket.send(JSON.stringify({request:"query", data:res}));
+    })
+  }
+}
 app.get("/", (req, res)=>{
   res.sendFile(__dirname+"/views/home.html")
 });
@@ -102,4 +117,41 @@ function query(query, callback){
       return false;
     }
   }
+}
+
+function queryIncrem(query, callback){
+  let toDo = 4;
+  let done = 0;
+  let currentList = [];
+  try{
+    amazonInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      callback(currentList, toDo, done);
+    });
+  }catch(e){}
+
+  try{
+    bestbuyInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      callback(currentList, toDo, done);
+    });
+  }catch(e){}
+
+  try{
+    neweggInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      callback(currentList, toDo, done);
+    });
+  }catch(e){}
+  
+  try{
+    ebayInst.query(query, res=>{
+      currentList = [...currentList, ...res];
+      done++;
+      callback(currentList, toDo, done);
+    });
+  }catch(e){}
 }
