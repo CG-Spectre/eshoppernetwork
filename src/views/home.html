@@ -14,7 +14,7 @@
 </head>
 <body>
     <div id="header">
-        <p><nobr class="t1">eSh</nobr><div id="imgplaceholder"></div><img src="./img/logo.svg" alt="" class=""><nobr class="t2">pperNet</nobr></p>
+        <p><nobr class="t1">eSh</nobr><div id="imgplaceholder"></div><img src="https://eshpr.net/img/logo.svg" alt="" class=""><nobr class="t2">pperNet</nobr></p>
         <div id="swrapper"><form><input type="text" placeholder="Search..."><i id="submit" class="ph-bold ph-magnifying-glass"></i></form></div>
     </div>
     <div id="header2">
@@ -459,9 +459,6 @@
     
 </style>
 <script>
-	document.querySelector("body").onscroll = function(e){
-		console.log(e);
-	};
     document.getElementById("sortDivTab").addEventListener("click", ()=>document.getElementById("sortDiv").classList.toggle("out"));
     const observer = new MutationObserver((mutations)=>{
         mutations.forEach((mut)=>{
@@ -516,6 +513,7 @@
         
         
         const ratingCont = document.createElement("p");
+        ratingCont.setAttribute("rating", rating5);
         const star1 = document.createElement("i");
         const star2 = document.createElement("i");
         const star3 = document.createElement("i");
@@ -720,11 +718,24 @@
     }
     function setFilterOptions(){
         let options = {};
+        options.stores = [];
+        options.ratings = [];
         let prevListItem = false;
         let occurences = {};
         let alreadyProcessedNames = [];
         for(let i = 0; i < currentList.length; i++){
             let listItem = currentList[i];
+            if(!options.stores.includes(listItem.src)){
+                options.stores.push(listItem.src);
+            }
+            const rating5 = Math.round(listItem.rating*10)/2;
+            if(!options.ratings.includes(rating5 + " & up") && rating5 && !options.ratings.includes(rating5)){
+                if(rating5 != 5){
+                    options.ratings.push(rating5 + " & up");
+                }else{
+                    options.ratings.push(rating5);
+                }
+            }
             if(prevListItem){
                 for(let t = 0; t < prevListItem.name.split(" ").length; t++){
                     let word = prevListItem.name.split(" ")[t];
@@ -743,7 +754,36 @@
             alreadyProcessedNames.push(listItem.name);
             prevListItem = listItem;
         }
-        
+        let tempRate = [];
+        for(let i = 0; i < options.ratings.length; i++){
+            let rating = options.ratings[i];
+            let nint;
+            if(typeof rating == "number"){
+                nint = rating;
+            }else{
+                nint = parseFloat(rating.split(" & ")[0]);
+            }
+            let inserted = false;
+            for(let t = 0; t < tempRate.length; t++){
+                if(nint > tempRate[t]){
+                    tempRate.splice(t, 0, nint);
+                    inserted = true;
+                    break;
+                }
+            }
+            if(!inserted){
+                tempRate.push(nint);
+            }
+
+        }
+        options.ratings = [];
+        for(let i = 0; i < tempRate.length; i++){
+            if(tempRate[i] != 5){
+                options.ratings.push(tempRate[i] + " & up");
+            }else{
+                options.ratings.push(5);
+            }
+        }
         let currentMax = 0;
         for(i in occurences){
             if(occurences[i] > currentMax){
@@ -850,6 +890,53 @@
                     })
                 }
             }
+            if(i=="stores"){
+                for(let t = 0; t < filterOptions[i].length; t++){
+                    let item = filterOptions[i][t];
+                    let node = document.createElement("div");
+                    let itemp = document.createElement("p");
+                    let inp = document.createElement("input");
+                    inp.type = "checkbox";
+                    itemp.innerHTML = item;
+                    node.appendChild(inp);
+                    node.appendChild(itemp);
+                    node.classList.add("kw");
+                    document.getElementById("ss").appendChild(node);
+                    inp.addEventListener("click", (e)=>{
+                        let checked = (e.srcElement.checked);
+                        if(checked){
+                            appliedFilters.stores.push(e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }else{
+                            appliedFilters.stores = appliedFilters.stores.filter(item => item !== e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }
+                        processAppliedFilters();
+                    });
+                }
+            }
+
+            if(i=="ratings"){
+                for(let t = 0; t < filterOptions[i].length; t++){
+                    let item = filterOptions[i][t];
+                    let node = document.createElement("div");
+                    let itemp = document.createElement("p");
+                    let inp = document.createElement("input");
+                    inp.type = "checkbox";
+                    itemp.innerHTML = item;
+                    node.appendChild(inp);
+                    node.appendChild(itemp);
+                    node.classList.add("kw");
+                    document.getElementById("rs").appendChild(node);
+                    inp.addEventListener("click", (e)=>{
+                        let checked = (e.srcElement.checked);
+                        if(checked){
+                            appliedFilters.ratings.push(e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }else{
+                            appliedFilters.ratings = appliedFilters.ratings.filter(item => item !== e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }
+                        processAppliedFilters();
+                    });
+                }
+            }
         }
         
     }
@@ -899,7 +986,24 @@
                     
                 }
             }
-            return gonnaPass;
+            let gonnaPassStore = (appliedFilters.stores.length == 0) ? true : false;
+            for(let t = 0; t < appliedFilters.stores.length; t++){
+                let store = appliedFilters.stores[t];
+                if(x.src == store){
+                    gonnaPassStore = true;
+                }
+            }
+            let gonnaPassRating = (appliedFilters.ratings.length == 0) ? true : false;
+            for(let  t = 0; t < appliedFilters.ratings.length; t++){
+                let rating = (appliedFilters.ratings[t] == 5) ? 5 : parseFloat(appliedFilters.ratings[t].split(" & ")[0]);
+                let irating = Math.round(x.rating*10)/2;
+                if(irating){
+                    if(irating >= rating){
+                        gonnaPassRating = true;
+                    }
+                }
+            }
+            return gonnaPass && gonnaPassStore && gonnaPassRating;
         });
         document.querySelector(".results-container").innerHTML = "";
         for(let i = 0; i < filteredArray.length; i++){
@@ -923,7 +1027,7 @@
 
     function resetFilters(){
         filterOptions = false;
-        appliedFilters = {kwsearch:[]};
+        appliedFilters = {kwsearch:[], stores:[], ratings:[]};
         document.querySelectorAll(".full div").forEach(e=>{
             if(e.id){
                 e.innerHTML = "";
