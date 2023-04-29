@@ -29,6 +29,35 @@
             <li><a>Microcenter</a></li>
         </ul>
     </div>
+    
+    <div id="sortDiv">
+    	<div id="sortDivDecoy"></div>
+        <div id="sortDivTop">
+            
+        </div>
+        <div id="sortDivTab" class="out">
+            <i class="ph ph-caret-right"></i>
+        </div>
+        <div class="full">
+            <h2>Filters</h2>
+            <h3>Keyword Search</h3>
+            <div id="kws">
+
+            </div>
+            <h3>Store</h3>
+            <div id="ss">
+
+            </div>
+            <h3>Rating</h3>
+            <div id="rs">
+
+            </div>
+            <h3>Price</h3>
+            <div id="ps">
+
+            </div>
+        </div>
+    </div>
     <div id="placeholderContent">
         <!--<div class="i1">
             
@@ -43,6 +72,123 @@
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.js"></script>
 <style>
+	#sortDivDecoy{
+		width:0;
+		position:fixed;
+		height:100vh;
+		left:0;
+		top:0;
+		background-color:#c2c2c2;
+	}
+	#sortDiv.out #sortDivDecoy{
+		width: 100vw;
+        max-width: 300px;
+	}
+    #sortDivTop{
+        position: fixed;
+        width: 100%;
+        height: 107px;
+        left: 0;
+        top: 0;
+        display: flex;
+        justify-content: center;
+        align-items:center;
+        transform: translateY(10px);
+    }
+    #sortDivTop img{
+        height: 97px;
+    }
+    #header2{
+        z-index: 10000;
+    }
+    #header{
+        z-index: 10000;
+    }
+    input[type='checkbox']{
+        width: 15px;
+        height: 15px;
+        
+    }
+    .kw{
+        display: flex;
+        margin-top: 10px;
+        align-items:center;
+        margin-left: 10px;
+    }
+    .kw p{
+        margin: 0;
+        margin-left: 5px;
+    }
+
+    h3{
+        padding-left: 10px;
+    }
+    .full{
+        z-index: 1000;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow:hidden;
+        position: absolute;
+        left: 0;
+        top:107px;
+        
+    }
+    #sortDiv{
+        display: flex;
+        align-items:center;
+        justify-content: right;
+        height: calc(100vh);
+        width: 0;
+        max-width: 300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color:#c2c2c2;
+        z-index: 1;
+        transition: none;
+    }
+    #sortDiv.out #sortDivAbs{
+        height: 100vh;
+        width: 100vw;
+        max-width: 300px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background-color:#c2c2c2;
+        z-index: 1000;
+        transition: none;
+    }
+    #sortDivTab{
+    	top:calc(50vh - 50px);;
+    	left:-30px;
+    	position:fixed;
+        height: 100px;
+        font-size: 30px;
+        min-width: 30px;
+        background-color:#888888;
+        color:white;
+        border-radius:0px 15px 15px 0px;
+        transform: translateX(30px);
+        display: flex;
+        justify-content: center;
+        align-items:center;
+        cursor: pointer;
+        transition: none;
+        z-index: 100000;
+    }
+
+    #sortDiv.out {
+        width: 100vw;
+        
+    }
+
+    #sortDiv.out #sortDivTab{
+        transform: translateX(0px) scaleX(-1);
+        left:calc((100vw - (100vw - 300px)) - 30px);
+    }
     
     #placeholderContent .i1{
         background: linear-gradient(180deg, rgba(255,176,124,1) 0%, rgba(226,226,226,1) 100%);
@@ -313,6 +459,10 @@
     
 </style>
 <script>
+	document.querySelector("body").onscroll = function(e){
+		console.log(e);
+	};
+    document.getElementById("sortDivTab").addEventListener("click", ()=>document.getElementById("sortDiv").classList.toggle("out"));
     const observer = new MutationObserver((mutations)=>{
         mutations.forEach((mut)=>{
             if(mut.target.classList.contains("infinite")){
@@ -347,7 +497,6 @@
         console.log(data);
     }
     function addCard(link, imgsrc, rating, name, source, price){
-        
         const node = document.createElement("a");
         node.href = link;
         const imgCont = document.createElement("div");
@@ -566,6 +715,7 @@
         }
     });*/
     function listReceived(){
+        resetFilters();
         setFilterOptions();
     }
     function setFilterOptions(){
@@ -655,17 +805,113 @@
             
         }
         occurences = Object.keys(occurences);
+        let temp = []; 
         for(let t = 0; t < occurences.length; t++){
             for(let i = 0; i < occurences.length; i++){
                 if(occurences[i] && occurences[t]){
                     if(occurences[t].includes(occurences[i]) && t != i && !(occurences[t].includes(" "))){
                         delete occurences[i];
+                        //occurences = [...occurences.splice(0, i-1), ...occurences.splice(i+1, occurences.length - 1)];
+                    }else if(!temp.includes(occurences[i])){
+                        temp.push(occurences[i]);
                     }
                 }
             }
         }
+        occurences = temp;
         options.kwsearch = occurences;
         filterOptions = options;
+        pushOptions();
+    }
+    let appliedFilters = false;
+    function pushOptions(){
+        
+        for(i in filterOptions){
+            if(i=="kwsearch"){
+                for(let t = 0; t < filterOptions[i].length; t++){
+                    let item = filterOptions[i][t];
+                    let node = document.createElement("div");
+                    let itemp = document.createElement("p");
+                    let inp = document.createElement("input");
+                    inp.type = "checkbox";
+                    itemp.innerHTML = item;
+                    node.appendChild(inp);
+                    node.appendChild(itemp);
+                    node.classList.add("kw");
+                    document.getElementById("kws").appendChild(node);
+                    inp.addEventListener("click", (e)=>{
+                        let checked = (e.srcElement.checked);
+                        if(checked){
+                            appliedFilters.kwsearch.push(e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }else{
+                            appliedFilters.kwsearch = appliedFilters.kwsearch.filter(item => item !== e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }
+                        processAppliedFilters();
+                    })
+                }
+            }
+        }
+        
+    }
+
+    function processAppliedFilters(){
+        let filteredArray = [];
+        let found = false;
+        for(i in appliedFilters){
+            if(appliedFilters[i].length > 0){
+                found = true;
+            }
+        }
+        if(!found){
+            document.querySelector(".results-container").innerHTML = "";
+            for(let i = 0; i < currentList.length; i++){
+                let item = currentList[i];
+                addCard(item.link, item.img, item.rating, item.name, item.src, item.price);
+            }
+            const minWidth = 320;
+            const windowWidth = document.querySelector('html').clientWidth;
+            const toFit = Math.floor(windowWidth / minWidth);
+            const leftOverPixels = windowWidth % minWidth;
+            const toAdd = leftOverPixels/toFit;
+            document.getElementById("jsStyle").innerHTML = `.result-card{width:${300+toAdd}px !important; height:${((300+toAdd)/300)*400}px !important;}`;
+            return found;
+        }
+        /*for(let i = 0; i < currentList.length; i++){
+            let itemToProcess = currentList[i];
+            for(let t = 0; t < appliedFilters.kwsearch.length; t++){
+                let word = appliedFilters.kwsearch[t];
+                if(itemToProcess.name.toLowerCase().includes(word)){
+                    filteredArray.filter(x => {
+                        console.log(x.name != itemToProcess.name)
+                        return x.name.toLowerCase().includes(word) && x.name != itemToProcess.name;
+                    });
+                    filteredArray.push(itemToProcess);
+                }
+            }
+        }*/
+        filteredArray = currentList;
+        filteredArray = filteredArray.filter((x)=>{
+            let gonnaPass = true;
+            for(let t = 0; t < appliedFilters.kwsearch.length; t++){
+                let word = appliedFilters.kwsearch[t];
+                if(!removePunct(x.name).toLowerCase().includes(word)){
+                    gonnaPass = false;
+                    
+                }
+            }
+            return gonnaPass;
+        });
+        document.querySelector(".results-container").innerHTML = "";
+        for(let i = 0; i < filteredArray.length; i++){
+            let item = filteredArray[i];
+            addCard(item.link, item.img, item.rating, item.name, item.src, item.price);
+        }
+        const minWidth = 320;
+        const windowWidth = document.querySelector('html').clientWidth;
+        const toFit = Math.floor(windowWidth / minWidth);
+        const leftOverPixels = windowWidth % minWidth;
+        const toAdd = leftOverPixels/toFit;
+        document.getElementById("jsStyle").innerHTML = `.result-card{width:${300+toAdd}px !important; height:${((300+toAdd)/300)*400}px !important;}`;
     }
     let punct = [".", ",", ":", "(", ")", "'", "!", "?"];
     function removePunct(string){
@@ -674,6 +920,17 @@
         }
         return string;
     }
+
+    function resetFilters(){
+        filterOptions = false;
+        appliedFilters = {kwsearch:[]};
+        document.querySelectorAll(".full div").forEach(e=>{
+            if(e.id){
+                e.innerHTML = "";
+            }
+        })
+    }
+    document.addEventListener("load",()=>resetFilters());
     
     
 </script>
