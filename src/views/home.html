@@ -129,7 +129,7 @@
         left: 0;
         top: 0;
         width: 100%;
-        height: 100%;
+        height: auto;
         overflow:hidden;
         position: absolute;
         left: 0;
@@ -719,6 +719,9 @@
     function setFilterOptions(){
         let options = {};
         options.stores = [];
+        options.prices = [];
+        let maxPrice = 0; 
+        let minPrice = Infinity;
         options.ratings = [];
         let prevListItem = false;
         let occurences = {};
@@ -727,6 +730,13 @@
             let listItem = currentList[i];
             if(!options.stores.includes(listItem.src)){
                 options.stores.push(listItem.src);
+            }
+            let price = parseFloat(listItem.price.includes(" ") ? listItem.price.split("$")[1].split(" ")[0] : listItem.price.split("$")[1]);
+            if(price > maxPrice){
+                maxPrice = price;
+            }
+            if(price < minPrice){
+                minPrice = price;
             }
             const rating5 = Math.round(listItem.rating*10)/2;
             if(!options.ratings.includes(rating5 + " & up") && rating5 && !options.ratings.includes(rating5)){
@@ -753,6 +763,57 @@
             }
             alreadyProcessedNames.push(listItem.name);
             prevListItem = listItem;
+        }
+        function processTo10(num){
+            if(num < 20){
+                return Math.ceil(num*10)/2;
+            }else{
+                return Math.ceil(num*10)/10;
+            }
+        }
+        minPrice = processTo10(minPrice);
+        maxPrice = processTo10(maxPrice);
+        const maxNums = 5;
+        let tempPriceList = [];
+        for(let i = minPrice; i < Math.min(maxPrice, 20) + 1; i += 5){
+            tempPriceList.push(i);
+        }
+        for(let i = Math.max(minPrice, 30); i < maxPrice + 1; i += 10){
+            tempPriceList.push(i);
+        }
+        if(tempPriceList.length > maxNums){
+            let amountToTrim = tempPriceList.length - maxNums;
+            const minpercentSafe = Math.ceil(1000/tempPriceList.length);
+            amountToTrim -= (Math.ceil(minpercentSafe)/100 * tempPriceList.length);
+            let amountLeft = tempPriceList.length - (Math.ceil(minpercentSafe)/100 * tempPriceList.length);
+            let currentMultiplier = 0;
+            while(amountLeft / (currentMultiplier + 0.5) > amountLeft - amountToTrim){
+                currentMultiplier++;
+            }
+            let wentUpBy_5 = false;
+            let mcount = 0;
+            for(let i = 0; i < tempPriceList.length; i++){
+                let value = tempPriceList[i];
+                if(i <= Math.ceil((minpercentSafe/100)*tempPriceList.length)){
+                    options.prices.push(value);
+                }else{
+                    if(!mcount){
+                        options.prices.push(value);
+                    }
+                    if(mcount == Math.floor(currentMultiplier) && Math.floor(currentMultiplier) != currentMultiplier && mcount != currentMultiplier){
+                        if(wentUpBy_5){
+                            mcount = 0;
+                            wentUpBy_5 = false;
+                        }else{
+                            mcount += 0.5;
+                        }
+                    }else if(mcount == currentMultiplier){
+                        mcount = 0;
+                    }else{
+                        mcount++;
+                    }
+                }
+            }
         }
         let tempRate = [];
         for(let i = 0; i < options.ratings.length; i++){
@@ -937,6 +998,30 @@
                     });
                 }
             }
+
+            if(i=="prices"){
+                for(let t = 0; t < filterOptions[i].length; t++){
+                    let item = filterOptions[i][t];
+                    let node = document.createElement("div");
+                    let itemp = document.createElement("p");
+                    let inp = document.createElement("input");
+                    inp.type = "checkbox";
+                    itemp.innerHTML = "Under $"+item;
+                    node.appendChild(inp);
+                    node.appendChild(itemp);
+                    node.classList.add("kw");
+                    document.getElementById("ps").appendChild(node);
+                    inp.addEventListener("click", (e)=>{
+                        let checked = (e.srcElement.checked);
+                        if(checked){
+                            appliedFilters.prices.push(e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }else{
+                            appliedFilters.prices = appliedFilters.prices.filter(item => item !== e.srcElement.parentElement.querySelector("p").innerHTML);
+                        }
+                        processAppliedFilters();
+                    });
+                }
+            }
         }
         
     }
@@ -1003,7 +1088,16 @@
                     }
                 }
             }
-            return gonnaPass && gonnaPassStore && gonnaPassRating;
+            let gonnaPassPrice = (appliedFilters.prices.length == 0) ? true : false;
+            for(let  t = 0; t < appliedFilters.prices.length; t++){
+                let price = parseFloat(appliedFilters.prices[t].split("der $")[1]);
+                let iprice = x.price.includes("-") ? parseFloat(x.price.split("$")[1].split(" -")[0]) : parseFloat(x.price.split("$")[1]);
+                if(iprice <= price){
+                    gonnaPassPrice = true;
+                }
+                
+            }
+            return gonnaPass && gonnaPassStore && gonnaPassRating && gonnaPassPrice;
         });
         document.querySelector(".results-container").innerHTML = "";
         for(let i = 0; i < filteredArray.length; i++){
@@ -1027,7 +1121,7 @@
 
     function resetFilters(){
         filterOptions = false;
-        appliedFilters = {kwsearch:[], stores:[], ratings:[]};
+        appliedFilters = {kwsearch:[], stores:[], ratings:[], prices:[]};
         document.querySelectorAll(".full div").forEach(e=>{
             if(e.id){
                 e.innerHTML = "";
